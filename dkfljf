@@ -18,3 +18,6 @@ x[6]<-NULL
 x<-c(10,30,5,70,90)
 
 x<-sort(union(x[-3]%/%10,x[3]))
+
+
+#asdfasdf
