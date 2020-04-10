@@ -1,0 +1,102 @@
+import os
+import requests
+import pandas as pd
+
+api_key='RGAPI-b693c56d-05ae-4b3c-9736-d688039853bc'
+sohwan = "https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/" +'징크스동생샹크스'+'?api_key=' + api_key
+r=requests.get(sohwan)
+
+id = r.json()['accountId']
+
+season = str(13)
+
+
+match = "https://kr.api.riotgames.com/lol/match/v4/matchlists/by-account/"+id+'?season=' + season + '&api_key=' + api_key
+r1 = requests.get(match)
+data = r1.json()
+df1=pd.DataFrame(data['matches'])
+x=df1['gameId']
+
+
+df2=pd.DataFrame()
+for a in x:
+    match = "https://kr.api.riotgames.com/lol/match/v4/matches/{}?api_key=".format(a) + api_key
+    r2 = requests.get(match)
+    data = r2.json()['teams']
+    df2=df2.append(pd.DataFrame(data[0]))
+
+df2=df2.drop(['bans'],axis=1)
+df2=df2.drop([1,2,3,4])
+
+#df21=df2.iloc[0:70]
+#df22=df2.iloc[71:-1]
+
+df2=df2.reset_index()
+df2=df2.drop(['index'],axis=1)
+
+a=0
+for i in df2['win']:
+    if i=='Win':
+        df2['win'][a]=1
+    else:
+        df2['win'][a]=0
+    a+=1
+    
+
+    
+from sklearn.preprocessing import LabelEncoder
+
+for i in range(2,8):
+    le = LabelEncoder()
+    y = list(df2.iloc[:,i])
+    
+    le.fit(y)
+    y2 = le.transform(y) 
+    
+    df2.iloc[:,i] = y2 
+
+
+
+dfwin=pd.DataFrame()
+dfwin['win']=df2['win']
+
+df2=df2.drop(['win'],axis=1)
+
+
+
+
+import pandas as pd
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+
+
+x_train, x_test, y_train, y_test = train_test_split(df2, dfwin, test_size=0.3)
+
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import metrics
+
+forest = RandomForestClassifier(n_estimators=100)
+forest.fit(x_train, y_train)
+
+y_pred = forest.predict(x_test)
+
+print(y_pred)
+print(list(y_test))
+
+print(metrics.accuracy_score(y_test, y_pred))
+
+
+
+type(y_test)
+
+
+
+
+
+
+from IPython import get_ipython
+get_ipython().magic('who print')
+
+pd.set_option("display.max_rows",1000)
+pd.set_option("display.max_columns",100)
