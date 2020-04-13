@@ -10,10 +10,10 @@ api_key = 'RGAPI-d8c5acbe-1643-44cd-88f3-b7bc1209191d'
 
 
 challenger = 'https://kr.api.riotgames.com/lol/league/v4/challengerleagues/by-queue/RANKED_SOLO_5x5?api_key=' + api_key
-r = requests.get(challenger)#그마데이터 호출
+r = requests.get(challenger)#챌린저 호출
 league_df = pd.DataFrame(r.json())
 
-league_df.reset_index(inplace=True)#수집한 그마데이터 index정리
+league_df.reset_index(inplace=True)#수집한 챌린저 index정리
 league_entries_df = pd.DataFrame(dict(league_df['entries'])).T #dict구조로 되어 있는 entries컬럼 풀어주기
 league_df = pd.concat([league_df, league_entries_df], axis=1) #열끼리 결합
 
